@@ -1,0 +1,28 @@
+
+trigger:
+- master
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- script: echo Hello, world!
+  displayName: 'Run a one-line script'
+- task: DownloadSecureFile@1
+  name: publickey
+  inputs:
+    secureFile: 'id_rsa.pub'
+- task: TerraformCLI@2
+  inputs:
+    command: 'init'
+    workingDirectory: '$(System.DefaultWorkingDirectory)//configuration/iaac/azure/kubernetes'
+    commandOptions: '-var client_id=$(client_id) -var client_secret=$(client_secret) -var ssh_public_key=$(publickey.SecureFilePath)'
+    backendType: 'azurerm'
+    backendServiceArm: 'Azure_service_connection'
+    ensureBackend: true
+    backendAzureRmResourceGroupName: 'second_tf_rg'
+    backendAzureRmResourceGroupLocation: 'westus'
+    backendAzureRmStorageAccountName: 'storageacforaksjit'
+    backendAzureRmContainerName: 'firstcon'
+    backendAzureRmKey: 'rmcon.tfstate'
+    allowTelemetryCollection: true
